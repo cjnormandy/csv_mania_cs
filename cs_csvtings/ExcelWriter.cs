@@ -34,5 +34,44 @@ namespace CSVProgram
                 workbook.SaveAs(filePath);
             }
         }
+
+        // Update an Employee
+        public void UpdateEmployeeInExcel(string filePath, int employeeId, Employee updatedEmployee)
+        {
+            try
+            {
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    var worksheet = workbook.Worksheet("Employees");
+
+                    var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+                    bool employeeFound = false;
+                    foreach (var row in rows)
+                    {
+                        if (row.Cell(1).GetValue<int>() == employeeId)
+                        {
+                            row.Cell(2).Value = updatedEmployee.Name;
+                            row.Cell(3).Value = updatedEmployee.Role;
+                            row.Cell(4).Value = updatedEmployee.Salary;
+                            row.Cell(5).Value = updatedEmployee.Department;
+                            row.Cell(6).Value = updatedEmployee.Email;
+                            employeeFound = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!employeeFound) 
+                    {
+                        throw new Exception($"Employee with ID {employeeId} not found.");
+                    }
+
+                    workbook.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+            }
+        }
     }
 }
